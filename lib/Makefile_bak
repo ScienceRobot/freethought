@@ -1,0 +1,59 @@
+#PROJECT Freethought Library
+PROJECT = libfreethought.a
+project = libfreethought.a
+
+CC=gcc
+DATA_THISDIR := $(shell pwd | sed -e 's=^/tmp_mnt/=/=')
+#add -DUSE_FFMPEG to CFLAGS for FFMPEG code
+CFLAGS := -Wall -O2 -ffast-math -DLinux
+#
+#-fomit-frame-pointer 
+#-mpreferred-stack-boundary=2
+INCDIR := -I/usr/src/linux/include -I/usr/include -I.
+#LIBS = -L/lib -L/usr/lib64 -L/usr/lib -L/usr/X11R6/lib -lX11 -ljpeg -lm -lavutil  -lavformat -lavcodec -lmp3lame -lswscale
+#LIBS = -L/lib -L/usr/lib64 -L/usr/lib -L/usr/X11R6/lib -lX11 -ljpeg -lm -lavutil -lavformat -lavcodec -lmp3lame -lswscale
+LIBS = -L/lib  -L/usr/lib -L/usr/lib64 -L/usr/X11R6/lib -lX11 -ljpeg -lmp3lame -lm
+#-lstdc++
+#-lstdc++ is needed just because the extension is .cpp not .c
+SRCS=freethought.c
+OBJS=freethought.o
+
+#EXE=$(project)
+#possibly should just put lib locally- not in /usr/lib
+#I just worry that people will make and wonder why it doesn't work
+all: $(OBJS)
+	ar rcs libfreethought.a freethought.o
+	cp libfreethought.a /usr/lib64
+	cp libfreethought.a /usr/lib
+	ln -sf $(DATA_THISDIR)/freethought.h /usr/include/freethought.h
+
+#make freethought library (libfreethought.a)
+lib: $(OBJS)
+	cp libfreethought.a /usr/lib64
+	cp libfreethought.a /usr/lib
+	ln -sf $(DATA_THISDIR)/freethought.h /usr/include/freethought.h
+
+install: $(OBJS)
+	ar rcs libfreethought.a freethought.o
+	cp libfreethought.a /usr/lib64
+	cp libfreethought.a /usr/lib
+	ln -sf $(DATA_THISDIR)/freethought.h /usr/include/freethought.h
+
+uninstall:
+	unlink /usr/include/freethought.h
+	rm -rf /usr/lib/libfreethought.a
+	rm -rf /usr/lib64/libfreethought.a
+
+debug: $(OBJS)
+	$(CC) $(CFLAGS) -c -g $(INCDIR) $(OBJS) $(LIBS) $(SRCS)
+	ar rcs libfreethought.a freethought.o
+	cp libfreethought.a /usr/lib64
+	cp libfreethought.a /usr/lib
+	ln -sf $(DATA_THISDIR)/freethought.h /usr/include/freethought.h
+
+
+.c.o:	$(SRCS)
+	$(CC) -c $(CFLAGS) $(INCDIR) $<
+
+clean:
+	rm -f *.o $(PROJECT)

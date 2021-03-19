@@ -1,0 +1,28 @@
+Freethought
+===========
+Freethought is under the GNU license. 
+
+Maybe people figured out how to see, hear and send images and sounds to a from brains and remote muscle movement back in the early 1800s, but at least now there is "FreeThought", a program, not quite as robust as GTK or QT, but still usable as a system to create a program with windows.
+
+
+How to build:
+make install
+make debug_install (for debug library and examples)
+
+
+Ubuntu notes:
+sudo apt install libx11-dev libjpeg-dev libmp3lame-dev build-essential
+
+
+MacOS notes:
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew install libjpeg
+brew install lame
+brew install gdb
+
+
+Enjoy!
+Ted Huntington
+
+
+

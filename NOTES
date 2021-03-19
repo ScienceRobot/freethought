@@ -1,0 +1,177 @@
+NOTES
+
+07/14/2009
+A few different options in implementing frames and data controls
+1) Should data controls be very large and then clipped (I introduced lx1,ly1,lx2,ly2 for these large controls) OR
+2) Should data controls be custom scrolled by user callback functions - keeping the control the same dimensions all the time
+
+Clearly with a frame control, some controls are going to be largely offscreen - perhaps many thousands of pixels away, and so large x,y coordinates are going to be needed - the data controls become very large when set to the nanosecond scale. 
+
+It's a tough choice between making data controls part of freethought or making them user controls - they are becoming so specific that it seems more like a user control - data controls have added a lot of variables to the control structure. But data controls will probably only ever be used on a timeline, but perhaps this makes throwing together a timeline+tracks project easier - but then most people would use GTK or QT - so I need to remember that FT is basically just a fast tool I threw together to quickly put up data, edit video, etc. and not meant for general use - although, my thought, has always been that if I can make it logical for other purposes and general use I should try to.
+
+
+05/06/2009
+Many decisions had to be made. Many times there were two choices. For example, one choice is:
+
+1) Keep the FTWindow (twin) malloc'd for the life of all programs - this avoids problems of a user CloseFTWindow - while FT is still processing the twin. - Then delete on final exit. GetFTWindow returns 0 if a window is not WOpen, and createftwindow simply sets WOpen
+2) Free the memory of the FTWindow malloc when the window is closed. I chose to go with this method, however it requires numerous:
+twin=GetFTWindow(winname); //check to see if window was deleted
+tcontrol=GetFTControl(conname); //check to see if control was deleted
+if (twin==0 || tcontrol==0) return; 
+statements throughout the code after each user call
+-another approach is to simply not process controls or windows after user function calls, but this can't be done when buttondownup() and buttonup() are both are called, etc.
+
+- perhaps a better method is to pass &twin - but then all user functions get **twin
+- perhaps there is a faster method to search for a window - or to see if it has ben freed - like a bit flag?
+
+One issue are file and combo itemlists - they need to have addftitem each time they are opened - and their itemlist is reset after the window is closed - as opposed to keeping the window and control memory structures in memory but closing the xwindow. 
+
+ultimately I thought that holding onto what might be large portions of memory until the program ended was not a good idea-but it probably wouldn't be a major problem to leave them in memory - and some things might run faster because there is no need to additem, etc.
+
+possibly the two models should have a bit like #define PCloseAndDestroy 0x001...
+
+An interesting point in favor of adding the checking to see if a window or control was deleted by a user is that they could call DestroyFTWindow anyway- but it could be advised not to.
+ 
+One big problem with destroying an itemlist window is that the control is still on a window-
+perhaps do not destroy itemlist windows - they are destroyed when a window is closed - and recreated when the main window with the control is opened.
+
+I think there is a strong argument for passing (*user_function) (&twin,&tcontrol, ) etc...
+checking to see if (twin==0) on return is easier, then the user function would have
+(**twin) and would have to use use the window as *twin all the time unless using a different pointer.
+
+
+
+10-02-04
+could not get 
+
+XChangeProperty(PStatus.xdisplay,twin->xwindow,XA_NET_WM_WINDOW_TYPE,XA_ATOM,32,
+                      PropModeReplace,(unsigned char *)&XA_NET_WM_WINDOW_TYPE_MENU,1); 
+
+to go without a titlebar, even with:
+     memset(&motif_hints,0,sizeof(PropMotifWmHints));
+     motif_hints.flags = MWM_HINTS_DECORATIONS;
+     motif_hints.decorations = 0;  
+
+//removes window decorations
+//titlebar, etc...
+     XChangeProperty(PStatus.xdisplay,twin->xwindow, // display, window 
+                   XA_MOTIF_WM_HINTS,XA_MOTIF_WM_HINTS,                 // property, type
+                    32,                             // format: 32-bit datums 
+                    PropModeReplace,                // mode 
+                    (unsigned char *) &motif_hints, // data 
+                    PROP_MOTIF_WM_HINTS_ELEMENTS    // nelements 
+                  );
+
+//and
+//no button in taskbar
+XChangeProperty(PStatus.xdisplay,twin->xwindow,XA_NET_WM_STATE,XA_ATOM,32,
+                      PropModeReplace,(unsigned char *)&XA_NET_WM_STATE_SKIP_TASKBAR,1); 
+
+
+
+09-28-04
+visibilitynotify happens - deletes filemenu before button press is processed
+
+have to define filemenu protocol:
+button down on closed menu - opens menu
+button up on closred menu=nothing
+button down on open menu=nothing (mark bit to close on button up)
+button up on open menu=(after just opening menu)nothing, (after button down on open menu)
+
+09-25-04
+X11:  motionnotify, - there should be an event that has the mouse belong to whatever window the mouse is over, even if the button was pressed down in a different window (and is still down)
+X11: buttondown events are not genereated for titlebar clicks, but should be
+
+09-20-04
+menu windows do not get exclusive control because initial filemenu/combo must get buttondown
+-test mouse over, should stay selected when mouse is over items
+
+CloseWindow does DelWindow
+when perhaps should only do hidewindow
+perhaps make HideWindow()
+
+
+
+09-12-04
+Making a splash window with no titlebar, etc... is way too difficult in XWindows but this person tells how:
+
+http://xfree86.desiato.de/xfree86/pipermail/xpert/2001-May/007818.html
+
+Here is another helpful link
+http://www.motifdeveloper.com/tips/tip30.html
+
+I don't want to use Widgets, this should be internal to X11 and basic like XSetWindowProperties(TITLEBAR| ....)
+or even in the XCreateWindow function
+
+
+
+
+08-23-04
+DelWindow
+-then FreeCOntrols goes thru and deletes each control
+-but with scroll bar controls, when 1 control is deleted other controls are deleted
+this ruins the linked list that started with twin->icontrol
+
+answer:
+delete each icontrol
+while twin->icontrol!=0 DelControl(twin->icontrol); (will move rest of list up)
+
+08-16-04
+Scaling/Moving controls on a resize is complicated:
+scaling= x1,y1,x2,y2 all *scalx or *scaley - they grow and move with the window
+moving=x1,y1 *scalex,*scaley but x2,y2+width
+
+scroll bar up/down buttons - x is moved, y is scaled (x keeps same width, but y moves)
+
+problems:
+if moving, if the window becomes small, the controls will overlap
+the opposite is true if growing larger, the buttons spread apart
+somehow they need to be kept together - going from right subtracting their width, etc...
+
+
+possible answers:
+only scale everything, or if move, except 
+I think I may go back to the grow format:
+grow x1, x2, y1, y2 = how many pixels from right and bottom
+
+chose answer:
+1) CScaleMoveX1,CScaleMoveY1,CScaleMoveX2,CScaleMoveY2 simply adds change in w,h of window on resize
+2) CScaleX1,CScaleY1,CScaleX2,CScaleY2=apply scaling .sx1,.sy1,.sx2,.sy2=% of change in window size to add
+   twin->dw/dh = last change in window
+2) needs the most explaining:  unlike an HTML table, controls are independent (not connected like columns), so ScaleX1 would cause the separation problem above, for controls that are not scaled, but move with the growing window.
+
+
+07-27-2004
+CMove is a control bit that is used to automatically move controls, then human code would limit those movements, but the more I think about it, the more I think that movable controls should be done by human functions.  I suppose that the freethought code can use the CMove bit to capture the background before drawing the control.  They will have to call erasecontrol, move the control (check boundaries), and then redraw the control.  Otherwise, freethought.c would handle the move in the mousemove function, erase the control, move the control, and redraw the control, leaving a human function to check boundaries and move the control back.  This would require:
+erase image, move control
+human function adjusts control (perhaps undoing the movement done in freethought.c)
+getimage (with final control dimenstions)
+drawimage
+
+I just think having to "undo" the movement done in freethought.c is going to be too confusing for people that would probably rather move the control themselves, making the procedure:
+
+mouse move calls human mousemove func
+humans func:
+-erase control
+-move control (checking boundaries)
+-get background
+-draw control
+
+I think possibly make a CFTMove bit to have freethought do the movement
+
+
+07-26-2004 
+double-click actually calls buttondown,up,downup, on first click.  any wait 200ms, etc... has to be done in human code.
+
+07-06-2003
+I see a possibly complex problem for visual basic:  a person wants to dynamically make a control (for example a button) programmatically or in code.  Then the person needs a function like buttonname_click() for the control made in the program code.  For this, I am not sure what could be done, but a person could have programming code that has a function address, and then that address is attached to the control struct variables.  The programming code could be made at the same time as the control is made, in a simple string or textfile?  Then when a click on the button, the code that was made with the button (tempbtn_click() or whatever) could be run.  For now I am not making it possible to create/make controls from program code (as far as I know this is the way MS VB is).
+
+An example of this kind of dynamically allocated controls are track (data .wav or .avi) controls in Video Edit.  When a person clicks on a control (for example to cut the control/.wav data in half) a function needs to be called like btnTrackxxx_Click(i32 x,i32 y).  These functions do not exist in Video Edit, everything is done inline, or hand-coded viewing track/data controls as special controls with unique properties.
+
+
+
+
+XWindows
+========
+XCreateSimpleWindow x,y does not set window position
+

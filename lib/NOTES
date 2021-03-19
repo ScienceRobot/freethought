@@ -1,0 +1,4 @@
+12/08/2009 In Cygwin there is an issue with the large FTControl structure. I had 
+to change local FTControl variables to pointers and malloc. Perhaps there is some 
+way to increase the stack space in gcc?
+

@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2009
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freethought", "freethought.vcxproj", "{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Debug|Win32 = Debug|Win32
+		Release|Default = Release|Default
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Debug|Default.ActiveCfg = Debug|Win32
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Debug|Win32.Build.0 = Debug|Win32
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Release|Default.ActiveCfg = Release|Win32
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Release|Win32.ActiveCfg = Release|Win32
+		{ABF0195A-B8F7-43D3-A9D9-00B40FEC0D0B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E39F21A5-86A8-45C3-A964-8E8080BFAA07}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Debug|Win32 = Debug|Win32
+		Release|Default = Release|Default
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		Debug|Win32 = Debug|Win32
+		Release|Default = Release|Default
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+EndGlobal
